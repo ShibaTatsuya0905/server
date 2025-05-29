@@ -17,7 +17,7 @@ const dbConfig = {
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    dateStrings: true // QUAN TRỌNG: Trả về DATE và DATETIME dưới dạng chuỗi, không phải đối tượng Date JS
+    dateStrings: true
 };
 
 const pool = mysql.createPool(dbConfig);
@@ -26,10 +26,8 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Lấy tất cả hồ sơ bệnh nhân
 app.get('/api/patients', async (req, res) => {
     try {
-        // `dateStrings: true` trong dbConfig đã xử lý việc trả về ngày dạng chuỗi YYYY-MM-DD
         const [rows] = await pool.query('SELECT * FROM patients ORDER BY createdAt DESC');
         res.json(rows);
     } catch (error) {
@@ -38,7 +36,6 @@ app.get('/api/patients', async (req, res) => {
     }
 });
 
-// Tạo hồ sơ bệnh nhân mới
 app.post('/api/patients', async (req, res) => {
     const {
         hoTen, ngaySinh, gioiTinh, diaChi, soDienThoai,
@@ -65,7 +62,6 @@ app.post('/api/patients', async (req, res) => {
     }
 });
 
-// --- MỚI: Cập nhật hồ sơ bệnh nhân ---
 app.put('/api/patients/:id', async (req, res) => {
     const patientId = req.params.id;
     const {
@@ -83,7 +79,6 @@ app.put('/api/patients/:id', async (req, res) => {
             hoTen = ?, ngaySinh = ?, gioiTinh = ?, diaChi = ?, soDienThoai = ?,
             ngheNghiep = ?, benhNen = ?, lyDoKham = ?, tienSuNhaKhoa = ?, chiTiet = ?
             WHERE id = ?`;
-        // Lưu ý: updatedAt sẽ tự động cập nhật nếu schema DB đã cấu hình
         const values = [
             hoTen, ngaySinh, gioiTinh, diaChi, soDienThoai,
             ngheNghiep, benhNen, lyDoKham, tienSuNhaKhoa, chiTiet,
@@ -104,7 +99,6 @@ app.put('/api/patients/:id', async (req, res) => {
     }
 });
 
-// --- MỚI: Xóa hồ sơ bệnh nhân ---
 app.delete('/api/patients/:id', async (req, res) => {
     const patientId = req.params.id;
     try {
@@ -119,7 +113,6 @@ app.delete('/api/patients/:id', async (req, res) => {
         res.status(500).json({ message: "Lỗi server khi xóa hồ sơ." });
     }
 });
-
 
 app.listen(PORT, () => {
     console.log(`Backend server đang chạy tại http://localhost:${PORT}`);
